@@ -85,6 +85,8 @@ export async function showStudentTimeEntry() {
     try {
         const students = await StudentModel.find();
         for (const student of students) {
+            // console.log(student._id); uncomment this line and see student id 
+            //printing workTimeSnapOfEveryStudents
             console.log(` Work Time Snap of ${student.firstName} ${student.lastName}`)
             const workTimeSnapArray = await WorkSnapTimeEntryModel.find({ student: student._id });
             if (workTimeSnapArray.length) {
@@ -98,9 +100,35 @@ export async function showStudentTimeEntry() {
         console.log(error.message);
     }
 }
+export async function insertSnapTimeEntry(id: string) {
+    try {
+
+        //validation if student with id exits
+        const isIdValid = await StudentModel.findById(id);
+        if (!isIdValid) {
+            console.error("Id Is Not Valid");
+            return;
+        }
+
+
+        //i don't know schema of TimeEntries so i assume these values
+        const newTimeSnap = new WorkSnapTimeEntryModel({
+            student: id, timeEntries: {
+                // "date": new Date().getDate(),
+                "timeInMs": Date.now(),
+            }
+        });
+        await newTimeSnap.save();
+        console.log("Time Snap Inserted Succesful");
+    } catch (error: any) {
+        console.error(error.message);
+    }
+
+}
 
 
 connectToDataBase().then(async () => {
-    // await FillData();
+    // await FillData(); uncomment to fill new Data
+    // await insertSnapTimeEntry('66a4ef5ed6093d37796af09c'); unComment This To Insert SnapTimeEntry
     await showStudentTimeEntry();
 }).catch(console.error);
